@@ -6,6 +6,8 @@ exports.registerCommand = async options => {
 	if (!options) throw new Error('options are empty');
 
 	const { name, icon, command, menu } = options;
+	const autoQuote = options.autoQuote !== undefined ? options.autoQuote : true;
+
 	if (!name) throw new Error('name is not specified');
 	if (!command) throw new Error('command is not specified');
 	if (!menu) throw new Error('menuName is not specified');
@@ -14,7 +16,9 @@ exports.registerCommand = async options => {
 		await Registry.set(`${SOFTWARE_CLASSES}*\\shell\\${name}`);
 		await Registry.set(`${SOFTWARE_CLASSES}*\\shell\\${name}`, '', menu);
 		if (icon) await Registry.set(`${SOFTWARE_CLASSES}*\\shell\\${name}`, 'Icon', (icon.endsWith('.exe') ? `${icon},0` : icon));
-		await Registry.set(`${SOFTWARE_CLASSES}*\\shell\\${name}\\command`, '', `"${command}" "%1"`);
+		
+		const commandFormatted = autoQuote ? `"${command}" "%1"` : `${command} "%1"`;
+		await Registry.set(`${SOFTWARE_CLASSES}*\\shell\\${name}\\command`, '', commandFormatted);
 	} catch (e) {
 		return Promise.reject(e);
 	}
@@ -26,6 +30,7 @@ exports.registerDirectoryCommand = async options => {
 	if (!options) throw new Error('options are empty');
 
 	const { name, icon, command, menu } = options;
+	const autoQuote = options.autoQuote !== undefined ? options.autoQuote : true;
 	if (!name) throw new Error('name is not specified');
 	if (!command) throw new Error('command is not specified');
 	if (!menu) throw new Error('menu is not specified');
@@ -34,7 +39,8 @@ exports.registerDirectoryCommand = async options => {
 		await Registry.set(`${SOFTWARE_CLASSES}Directory\\shell\\${name}`);
 		await Registry.set(`${SOFTWARE_CLASSES}Directory\\shell\\${name}`, '', menu);
 		if (icon) await Registry.set(`${SOFTWARE_CLASSES}Directory\\shell\\${name}`, 'Icon', (icon.endsWith('.exe') ? `${icon},0` : icon));
-		await Registry.set(`${SOFTWARE_CLASSES}Directory\\shell\\${name}\\command`, '', `"${command}" "%1"`);
+		const commandFormatted = autoQuote ? `"${command}" "%1"` : `${command} "%1"`;
+		await Registry.set(`${SOFTWARE_CLASSES}Directory\\shell\\${name}\\command`, '', commandFormatted);
 	} catch (e) {
 		return Promise.reject(e);
 	}
@@ -47,6 +53,7 @@ exports.registerOpenWithCommand = async (extensions, options) => {
 	if (!options) throw new Error('options are empty');
 
 	const { name, command } = options;
+	const autoQuote = options.autoQuote !== undefined ? options.autoQuote : true;
 	if (!name) throw new Error('name is not specified');
 	if (!command) throw new Error('command is not specified');
 
@@ -54,7 +61,8 @@ exports.registerOpenWithCommand = async (extensions, options) => {
 		await Promise.all((await findExtensionNames(extensions)).map(async n => {
 			await Registry.set(`${SOFTWARE_CLASSES}${n}`);
 			await Registry.set(`${SOFTWARE_CLASSES}${n}\\shell\\${name}`);
-			await Registry.set(`${SOFTWARE_CLASSES}${n}\\shell\\${name}\\command`, '', `"${command}" "%1"`);
+			const commandFormatted = autoQuote ? `"${command}" "%1"` : `${command} "%1"`;
+			await Registry.set(`${SOFTWARE_CLASSES}${n}\\shell\\${name}\\command`, '', commandFormatted);
 		}));
 	} catch (e) {
 		return Promise.reject(e);

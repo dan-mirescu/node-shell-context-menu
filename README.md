@@ -2,7 +2,9 @@
 
 # node-shell-context-menu
 
-Add a context menu item command on Windows
+Add a context menu item command on Windows.
+
+**Added functionality**: Optionally set *autoQuote* option to *false* to disable automatically placing quotes around the command
 
 ## Install
 
